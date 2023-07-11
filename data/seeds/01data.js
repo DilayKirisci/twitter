@@ -3,12 +3,6 @@
  * @returns { Promise<void> }
  */
 exports.seed = async function (knex) {
-	await knex("users").truncate();
-	await knex("posts").truncate();
-	await knex("roles").truncate();
-	await knex("favorites").truncate();
-	await knex("comments").truncate();
-
 	await knex("users").insert([
 		{
 			username: "john_doe",
@@ -49,16 +43,16 @@ exports.seed = async function (knex) {
 	]);
 
 	await knex("roles").insert([
-		{ user_id: 1, rolename: "Admin" },
-		{ user_id: 2, rolename: "User" },
-		{ user_id: 3, rolename: "User" },
+		{ rolename: "Admin", user_id: 1 },
+		{ rolename: "User", user_id: 2 },
+		{ rolename: "User", user_id: 3 },
 	]);
 	await knex("favorites").insert([
+		{ user_id: 1, post_id: 1 },
+		{ user_id: 1, post_id: 2 },
 		{ user_id: 1, post_id: 3 },
-		{ user_id: 1, post_id: 4 },
-		{ user_id: 1, post_id: 5 },
 		{ user_id: 2, post_id: 1 },
-		{ user_id: 2, post_id: 6 },
+		{ user_id: 2, post_id: 3 },
 		{ user_id: 3, post_id: 1 },
 		{ user_id: 3, post_id: 2 },
 	]);
