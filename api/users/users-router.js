@@ -2,7 +2,7 @@ const usersModel = require("./users-model");
 const usersMw = require("./users-middleware");
 const router = require("express").Router();
 
-router.get("/", usersMw.isUserExist, async (req, res, next) => {
+router.get("/", async (req, res, next) => {
 	try {
 		const users = await usersModel.getAll();
 		res.status(200).json(users);
@@ -13,7 +13,7 @@ router.get("/", usersMw.isUserExist, async (req, res, next) => {
 
 router.get("/:id", usersMw.isUserExist, async (req, res, next) => {
 	try {
-		const { id } = req.params;
+		const id = req.params.id;
 		const user = await usersModel.getById(id);
 		const userExceptPassword = {
 			user_id: user.user_id,
@@ -29,9 +29,8 @@ router.get("/:id", usersMw.isUserExist, async (req, res, next) => {
 
 router.delete("/:id", usersMw.isUserExist, async (req, res, next) => {
 	try {
-		const { id } = req.params;
+		const id = req.params.id;
 		const deletedUser = await usersModel.remove(id);
-
 		if (!deletedUser) {
 			res.status(400).json({ message: `User with id: ${id} is not found.` });
 		} else {

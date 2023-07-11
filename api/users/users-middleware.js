@@ -2,8 +2,8 @@ const usersModel = require("./users-model");
 
 async function isUserExist(req, res, next) {
 	try {
-		const userId = req.params.id;
-		const userExist = await usersModel.getById(userId);
+		const user_id = req.params.id;
+		const userExist = await usersModel.getById(user_id);
 		if (!userExist) {
 			res
 				.status(400)
