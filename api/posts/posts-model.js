@@ -24,9 +24,7 @@ async function remove(id) {
 }
 
 async function update(id, post) {
-	await db("posts")
-		.where("post_id", id)
-		.update({ body: post.body, image_url: post.image_url });
+	await db("posts").where("post_id", id).update({ body: post.body });
 
 	return getById(id);
 }

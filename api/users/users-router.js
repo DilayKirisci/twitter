@@ -17,9 +17,8 @@ router.get("/:id", usersMw.isUserExist, async (req, res, next) => {
 		const user = await usersModel.getById(id);
 		const userExceptPassword = {
 			user_id: user.user_id,
-			username: user.username,
+			user_name: user.user_name,
 			email: user.email,
-			avatar_url: user.avatar_url,
 		};
 		res.status(200).json(userExceptPassword);
 	} catch (error) {

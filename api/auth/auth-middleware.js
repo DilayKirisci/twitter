@@ -1,95 +1,104 @@
-// const usersModel = require("../users/users-model");
-// const { JWT_SECRET } = require("../../config/config");
-// const validator = require("email-validator");
+const usersModel = require("../users/users-model");
+const emailValidator = require("email-validator");
+const bcryptjs = require("bcryptjs");
+const { JWT_SECRET } = require("../../config/config");
+const jwt = require("jsonwebtoken");
 
-// const jwt = require("jsonwebtoken");
-// const bcryptjs = require("bcryptjs");
+async function isUserAlreadyExist(req, res, next) {
+	const { email } = req.body;
 
-// function checkPayloadRegister(req, res, next) {
-// 	const { username, password, email } = req.body;
-// 	let usernameCheck = username || username.length > 2;
-// 	let passwordCheck = password || password.length > 5;
-// 	let emailCheck = validator.isEmail(email);
+	try {
+		const existingUser = await usersModel.getByEmail({ email: email });
+		if (existingUser) {
+			return res
+				.status(400)
+				.json({ message: "This email address is already in use." });
+		} else {
+			next();
+		}
+	} catch (error) {
+		next(error);
+	}
+}
+function checkPayload(req, res, next) {
+	const { user_name, password, email } = req.body;
 
-// 	try {
-// 		if (!usernameCheck) {
-// 			res
-// 				.status(400)
-// 				.json({ message: "Username must be at least 3 characters." });
-// 		} else if (!passwordCheck) {
-// 			res
-// 				.status(400)
-// 				.json({ message: "Password must be at least 6 characters." });
-// 		} else if (!emailCheck) {
-// 			res.status(400).json({ message: "Email address is not valid." });
-// 		} else {
-// 			next();
-// 		}
-// 	} catch (error) {
-// 		next(error);
-// 	}
-// }
+	if (!user_name || user_name.length < 3) {
+		return res
+			.status(400)
+			.json({ message: "Username must be at least 3 characters." });
+	}
 
-// function checkPayloadLogin(req, res, next) {
-// 	const { username, password } = req.body;
-// 	try {
-// 		if (!username || !password) {
-// 			res.status(400).json({ message: "Username or email are required" });
-// 		} else {
-// 			next();
-// 		}
-// 	} catch (error) {
-// 		next(error);
-// 	}
-// }
+	if (!password || password.length < 6) {
+		return res
+			.status(400)
+			.json({ message: "Password must be at least 6 characters." });
+	}
 
-// async function isUserAlreadyExist(req, res, next) {
-// 	const { username, email } = req.body;
-// 	const availableUser = await usersModel.getByUsernameOrEmail({
-// 		username,
-// 		email,
-// 	});
-// 	try {
-// 		if (availableUser) {
-// 			return res
-// 				.status(400)
-// 				.json({ message: "This email address or username is already in use." });
-// 		} else {
-// 			next();
-// 		}
-// 	} catch (error) {
-// 		next(error);
-// 	}
-// }
+	if (!emailValidator.validate(email)) {
+		return res.status(400).json({ message: "Email address is not valid." });
+	}
 
-// async function hashedPassword(req, res, next) {
-// 	try {
-// 		const hashedpassword = bcryptjs.hashSync(req.body.password, 8);
-// 		req.body.password = hashedpassword;
-// 		next();
-// 	} catch (error) {
-// 		next(error);
-// 	}
-// }
+	next();
+}
 
-// async function isUserExist(req, res, next) {
-// 	const { userPayload } = req.body;
-// 	const user = await usersModel.filter({ userPayload });
-// 	try {
-// 		if (!user) {
-// 		}
-// 	} catch (err) {
-// 		next(err);
-// 	}
-// }
+async function hashedPassword(req, res, next) {
+	try {
+		const hashedpassword = bcryptjs.hashSync(req.body.password, 8);
+		req.body.password = hashedpassword;
+		next();
+	} catch (error) {
+		next(error);
+	}
+}
 
-// async function passwordCheck(req, res, next) {}
+async function isUserExist(req, res, next) {
+	try {
+		const { email } = req.body;
+		const existingUser = await usersModel.getByEmail({ email });
 
-// module.exports = {
-// 	checkPayloadRegister,
-// 	checkPayloadLogin,
-// 	isUserAlreadyExist,
-// 	hashedPassword,
-// 	isUserExist,
-// 	passwordCheck,
-// };
+		if (!existingUser) {
+			return res
+				.status(401)
+				.json({ message: "The email or password is not correct" });
+		} else {
+			req.currentUser = existingUser;
+
+			next();
+		}
+	} catch (error) {
+		next(error);
+	}
+}
+
+async function passwordCheck(req, res, next) {
+	const { password } = req.body;
+	const dbPassword = req.currentUser.password;
+	console.log(dbPassword);
+	const isPasswordMatch = bcryptjs.compareSync(password, dbPassword);
+	console.log(isPasswordMatch); // Check the password comparison result
+
+	try {
+		if (!isPasswordMatch) {
+			res.status(401).json({ message: "Invalid user or password" });
+		} else {
+			let payload = {
+				user_id: req.currentUser.user_id,
+				user_name: req.currentUser.user_name,
+				role_name: req.currentUser.role_name,
+			};
+			const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+			req.token = token;
+			next();
+		}
+	} catch (error) {
+		next(error);
+	}
+}
+module.exports = {
+	isUserAlreadyExist,
+	checkPayload,
+	hashedPassword,
+	isUserExist,
+	passwordCheck,
+};
