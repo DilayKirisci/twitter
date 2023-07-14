@@ -15,8 +15,8 @@ async function getById(id) {
 }
 
 async function create(post) {
-	const [insertedPost] = await db("posts").insert(post);
-	return getById(insertedPost);
+	const [insertedPost] = await db("posts").insert(post).returning("*");
+	return insertedPost;
 }
 
 async function remove(id) {
@@ -24,8 +24,7 @@ async function remove(id) {
 }
 
 async function update(id, post) {
-	await db("posts").where("post_id", id).update({ body: post.body });
-
+	await db("posts").where("post_id", id).update({ post_body: post.post_body });
 	return getById(id);
 }
 

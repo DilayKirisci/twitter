@@ -5,7 +5,6 @@ const usersMw = require("../users/users-middleware");
 
 const restricted = require("../middleware/restricted");
 
-// brings all posts for feed
 router.get("/", async (req, res, next) => {
 	try {
 		const posts = await postsModel.getAll();
@@ -16,7 +15,7 @@ router.get("/", async (req, res, next) => {
 });
 
 // brings all posts of user with id
-router.get("/:id", usersMw.isUserExist, async (req, res, next) => {
+router.get("/:id", restricted, usersMw.isUserExist, async (req, res, next) => {
 	try {
 		const user_id = req.params.id;
 		const posts = await postsModel.getBy({ user_id: user_id });
@@ -37,7 +36,7 @@ router.post(
 			const { body } = req.body;
 			const newPost = {
 				user_id: req.params.user_id,
-				body: body,
+				post_body: body,
 			};
 			const insertedPost = await postsModel.create(newPost);
 			if (!insertedPost) {
@@ -67,7 +66,7 @@ router.put(
 			const { body } = req.body;
 			const newPost = {
 				user_id: user_id,
-				body: body,
+				post_body: body,
 			};
 			const updatedPost = await postsModel.update(post_id, newPost);
 			if (!updatedPost) {
@@ -104,17 +103,5 @@ router.delete(
 		}
 	}
 );
-
-// router.get(
-// 	"/:id/comments",
-
-// 	async (req, res, next) => {
-// 		try {
-// 			res.status(200).json(req.comments);
-// 		} catch (error) {
-// 			next(error);
-// 		}
-// 	}
-// );
 
 module.exports = router;

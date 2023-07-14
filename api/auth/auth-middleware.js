@@ -76,7 +76,7 @@ async function passwordCheck(req, res, next) {
 	const dbPassword = req.currentUser.password;
 	console.log(dbPassword);
 	const isPasswordMatch = bcryptjs.compareSync(password, dbPassword);
-	console.log(isPasswordMatch); // Check the password comparison result
+	console.log(isPasswordMatch);
 
 	try {
 		if (!isPasswordMatch) {
@@ -87,7 +87,9 @@ async function passwordCheck(req, res, next) {
 				user_name: req.currentUser.user_name,
 				role_name: req.currentUser.role_name,
 			};
-			const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+			const token = jwt.sign(payload, process.env.JWT_SECRET, {
+				expiresIn: "1d",
+			});
 			req.token = token;
 			next();
 		}

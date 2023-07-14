@@ -63,6 +63,7 @@ router.post("/login", isUserExist, passwordCheck, async (req, res, next) => {
 			message: "User successfully logged in.",
 			token: req.token,
 		});
+		console.log(token);
 	} catch (error) {
 		next(error);
 	}

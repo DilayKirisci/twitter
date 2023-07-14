@@ -3,11 +3,11 @@ const postsModel = require("./posts-model");
 
 const checkPayload = (req, res, next) => {
 	try {
-		const { body } = req.body;
+		const { post_body } = req.body;
 
-		if (body.length > 0 && body.length <= 280) {
+		if (post_body.length > 0 && post_body.length <= 280) {
 			next();
-		} else if (body.length > 280) {
+		} else if (post_body.length > 280) {
 			res
 				.status(400)
 				.json({ mesasage: "Text cannot be more than 280 characters." });
