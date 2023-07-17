@@ -5,7 +5,7 @@ const tokenHelper = require("../../helper/token-helper");
 
 const checkCommentsByUserId = async (req, res, next) => {
 	try {
-		const id = req.params.id;
+		const id = req.params.comment_id;
 		const comments = await commentsModel.getById(id);
 		if (!comments || comments.length <= 0) {
 			res
@@ -78,10 +78,10 @@ const isUserAllowed = async (req, res, next) => {
 		);
 		const userId = req.params.user_id;
 
-		if (payload.user_id == userId) {
+		if (payload) {
 			next();
 		} else {
-			res.status(400).json({ message: "Comment is not allowed." });
+			res.status(400).json({ message: "Token is needed." });
 		}
 	} catch (error) {
 		next(error);

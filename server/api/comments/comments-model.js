@@ -17,13 +17,15 @@ async function getById(id) {
 }
 
 async function create(user_id, post_id, comment_body) {
-	const [created] = await db("comments as c").insert({
-		user_id: user_id,
-		post_id: post_id,
-		comment_body: comment_body,
-	});
+	const [created] = await db("comments as c")
+		.insert({
+			user_id: user_id,
+			post_id: post_id,
+			comment_body: comment_body,
+		})
+		.returning("*");
 
-	return getByCommentId(created);
+	return created;
 }
 
 async function update(user_id, post_id, comment_body) {

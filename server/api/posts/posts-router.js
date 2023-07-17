@@ -33,7 +33,7 @@ router.post(
 	postsMw.checkPayload,
 	async (req, res, next) => {
 		try {
-			const { body } = req.body;
+			const body = req.body.post_body;
 			const newPost = {
 				user_id: req.params.user_id,
 				post_body: body,
@@ -63,10 +63,10 @@ router.put(
 		try {
 			const post_id = req.params.post_id;
 			const user_id = req.params.user_id;
-			const { body } = req.body;
+			const { post_body } = req.body;
 			const newPost = {
 				user_id: user_id,
-				post_body: body,
+				post_body: post_body,
 			};
 			const updatedPost = await postsModel.update(post_id, newPost);
 			if (!updatedPost) {

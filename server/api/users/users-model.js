@@ -20,15 +20,6 @@ async function getByEmail(email) {
 	return user;
 }
 
-// async function getBy(filter) {
-// 	const user = await db("users as u")
-// 		.join("roles as r", "u.user_id", "r.user_id")
-// 		.select("u.*", "r.role_name")
-// 		.where(filter)
-// 		.first();
-// 	return user;
-// }
-
 async function create(user) {
 	const [insertedUser] = await db("users").insert(user).returning("*");
 	return insertedUser;
